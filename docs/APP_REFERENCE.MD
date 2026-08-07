@@ -49,7 +49,7 @@ RembugKop adalah platform modernisasi ekosistem koperasi desa yang mendemokratis
 
 ### Stack Teknis
 
-Laravel 12 + Inertia.js · React 19 + TailwindCSS + ShadCN · MySQL/PostgreSQL
+Laravel 13 + Inertia.js v3 · React 19 + TailwindCSS v4 + ShadCN UI · Laravel Fortify (Passkeys & 2FA) + Wayfinder · MySQL/PostgreSQL
 
 ---
 

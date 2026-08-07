@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
             $table->string('member_number')->unique();
-            $table->string('national_id', 16)->unique(); // NIK, encrypted via cast
+            $table->longText('national_id'); // NIK (16 digits), encrypted via cast — unique enforced at application layer
             $table->text('address');
             $table->date('joined_at');
             $table->decimal('principal_savings', 15, 2)->default(0);

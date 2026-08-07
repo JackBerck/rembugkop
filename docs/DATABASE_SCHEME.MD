@@ -1,6 +1,6 @@
 # Skema Database — RembugKop.id
 
-Konteks: single-tenant (satu koperasi), voting one-member-one-vote, pembayaran hybrid (manual + payment gateway). Stack: Laravel 12 + PostgreSQL/MySQL.
+Konteks: single-tenant (satu koperasi), voting one-member-one-vote, pembayaran hybrid (manual + payment gateway). Stack: Laravel 13 + PostgreSQL/MySQL.
 
 ---
 

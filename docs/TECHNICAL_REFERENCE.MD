@@ -1,6 +1,6 @@
 # TECHNICAL_REFERENCE.md — RembugKop.id
 
-Acuan coding standard untuk proyek RembugKop.id (Laravel 12 + Inertia.js + React 19 + TailwindCSS + ShadCN). Dokumen ini hidup — update kalau ada keputusan baru selama development.
+Acuan coding standard untuk proyek RembugKop.id (Laravel 13 + Inertia.js v3 + React 19 + TailwindCSS v4 + ShadCN UI + Wayfinder). Dokumen ini hidup — update kalau ada keputusan baru selama development.
 
 ---
 
@@ -34,14 +34,18 @@ app/
 
 ```php
 // app/Actions/Reservation/ApproveReservationAction.php
+use App\Enums\ReservationStatus;
+use App\Models\AssetReservation;
+use App\Models\User;
+
 class ApproveReservationAction
 {
     public function execute(AssetReservation $reservation, User $approver): AssetReservation
     {
-        abort_if($reservation->status !== 'pending', 422, 'Reservasi sudah diproses.');
+        abort_if($reservation->status !== ReservationStatus::Pending, 422, 'Reservasi sudah diproses.');
 
         $reservation->update([
-            'status' => 'approved',
+            'status' => ReservationStatus::Approved,
             'approved_by' => $approver->id,
         ]);
 
@@ -80,9 +84,11 @@ Trait itu gampang disalahgunakan jadi "tempat sampah logic". Aturan pakai:
 - Selalu definisikan `$casts` untuk enum, decimal, dan datetime — jangan format manual di controller/blade.
 
 ```php
+use App\Enums\ReservationStatus;
+
 class AssetReservation extends Model
 {
-    protected $fillable = ['asset_id', 'user_id', 'start_datetime', 'end_datetime', 'duration_type', 'calculated_price'];
+    protected $fillable = ['asset_id', 'user_id', 'start_datetime', 'end_datetime', 'duration_type', 'calculated_price', 'status', 'approved_by', 'notes'];
 
     protected $casts = [
         'start_datetime' => 'datetime',
@@ -99,7 +105,7 @@ class AssetReservation extends Model
     {
         return $query->where('start_datetime', '<', $end)
                      ->where('end_datetime', '>', $start)
-                     ->whereIn('status', ['approved', 'ongoing']);
+                     ->whereIn('status', [ReservationStatus::Approved, ReservationStatus::Ongoing]);
     }
 }
 ```
@@ -155,7 +161,7 @@ public function toArray(Request $request): array
 
 ```php
 // Kalau cuma butuh jumlah vote per proposal, jangan load semua row votes
-Proposal::withCount(['votes as setuju_count' => fn ($q) => $q->where('choice', 'setuju')])->get();
+Proposal::withCount(['votes as setuju_count' => fn ($q) => $q->where('choice', VoteChoice::Agree)])->get();
 
 // Kalau cuma butuh cek "apakah user ini sudah vote", jangan load relasi penuh
 Proposal::withExists(['votes as has_voted' => fn ($q) => $q->where('user_id', auth()->id())])->get();
@@ -179,11 +185,14 @@ Karena Inertia ngirim seluruh props sebagai JSON tiap request, hindari `with('re
 Semua input dari form (reservasi, proposal, vote, dsb) **wajib** lewat `FormRequest`, jangan validasi manual di controller.
 
 ```php
+use App\Enums\DurationType;
+use App\Enums\UserRole;
+
 class StoreReservationRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->role === 'anggota';
+        return $this->user()->isAnggota();
     }
 
     public function rules(): array
@@ -207,11 +216,13 @@ Validasi overlap booking (cek §3 skema database) sebaiknya juga dicek di sini v
 Tiap model yang punya aturan akses (siapa boleh approve reservasi, siapa boleh vote, siapa boleh lihat kas) **wajib** punya Policy, dipanggil via `$this->authorize()` di controller atau `@can` di React lewat props yang dikirim dari backend (mis. `can: { approve: true }`).
 
 ```php
+use App\Enums\ReservationStatus;
+
 class AssetReservationPolicy
 {
     public function approve(User $user, AssetReservation $reservation): bool
     {
-        return $user->role === 'pengurus' && $reservation->status === 'pending';
+        return ($user->isPengurus() || $user->isAdmin()) && $reservation->status === ReservationStatus::Pending;
     }
 }
 ```
@@ -222,9 +233,10 @@ Jangan taruh logic `if ($user->role === 'pengurus')` tersebar di controller/blad
 
 ## 6. Konvensi Frontend (React + Inertia)
 
-- Struktur folder per fitur (`resources/js/Pages/Reservations/`, `resources/js/Pages/Proposals/`), bukan per tipe file, supaya gampang navigasi.
-- Komponen UI generik (button, card, modal) dari ShadCN taruh di `resources/js/Components/ui/`, komponen spesifik fitur taruh di folder fitur masing-masing.
-- Pakai `useForm()` dari Inertia untuk semua form submission (sudah handle loading state, error, dan reset otomatis) — jangan reinvent dengan `useState` manual per field kalau `useForm` sudah cukup.
+- Struktur folder per fitur (`resources/js/pages/Reservations/`, `resources/js/pages/Proposals/`), bukan per tipe file, supaya gampang navigasi.
+- Komponen UI generik (button, card, modal) dari ShadCN taruh di `resources/js/components/ui/`, komponen spesifik fitur taruh di folder fitur masing-masing.
+- Selalu gunakan **Laravel Wayfinder** untuk URL/route helper di React (`import { reservations } from '@/routes'` atau `@/actions`). Hindari URL string hardcoded.
+- Pakai `useForm()` dari Inertia v3 untuk semua form submission (sudah handle loading state, error, dan reset otomatis).
 - Props dari backend harus sudah dalam bentuk final siap render (lewat API Resource) — jangan lakukan transformasi data berat (format currency, hitung persentase vote, dsb) di komponen React kalau bisa dihitung sekali di backend.
 - TypeScript: definisikan `types/index.d.ts` untuk shape props utama (`Reservation`, `Proposal`, `Asset`, dst) supaya autocomplete jalan dan ketahuan kalau backend berubah shape tanpa sengaja.
 
