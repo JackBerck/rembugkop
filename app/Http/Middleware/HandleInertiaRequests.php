@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\UserRole;
+use App\Enums\VerificationStatus;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,11 +37,27 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role?->value,
+                    'status' => $user->status?->value,
+                    'verification_status' => $user->memberProfile?->verification_status?->value,
+                    'is_verified' => $user->memberProfile?->verification_status === VerificationStatus::Verified,
+                    'is_pengurus' => $user->role === UserRole::Pengurus || $user->role === UserRole::SuperAdmin,
+                ] : null,
+            ],
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'warning' => $request->session()->get('warning'),
+                'error' => $request->session()->get('error'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
