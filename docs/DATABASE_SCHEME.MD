@@ -30,13 +30,13 @@ Detail keanggotaan koperasi + validasi NIK/KTP. 1:1 dengan `users` (role = anggo
 |---|---|---|
 | id | bigint PK | |
 | user_id | bigint FK → users, unique | |
-| nomor_anggota | varchar unique | nomor keanggotaan koperasi |
-| nik | varchar(16) unique | dienkripsi (Laravel `encrypted` cast) |
-| alamat | text | |
-| tanggal_bergabung | date | |
-| simpanan_pokok | decimal(15,2) default 0 | untuk transparansi, tidak dipakai sbg bobot suara |
-| simpanan_wajib_total | decimal(15,2) default 0 | |
-| status_verifikasi | enum('pending','verified','rejected') | |
+| member_number | varchar unique | nomor keanggotaan koperasi |
+| national_id | varchar(16) unique | NIK dienkripsi (Laravel `encrypted` cast) |
+| address | text | |
+| joined_at | date | |
+| principal_savings | decimal(15,2) default 0 | untuk transparansi, tidak dipakai sbg bobot suara |
+| mandatory_savings_total | decimal(15,2) default 0 | |
+| verification_status | enum('pending','verified','rejected') | |
 | verified_by | bigint FK → users nullable | |
 | verified_at | timestamp nullable | |
 
@@ -50,10 +50,10 @@ Detail keanggotaan koperasi + validasi NIK/KTP. 1:1 dengan `users` (role = anggo
 | id | bigint PK | |
 | title | varchar | |
 | description | text | |
-| type | enum('pengadaan_aset','kebijakan','lainnya') | |
+| type | enum('asset_procurement','policy','other') | |
 | related_asset_id | bigint FK → assets nullable | isi kalau proposal pengadaan aset baru |
 | proposed_by | bigint FK → users | pengurus pengaju |
-| status | enum('draft','rembug_open','approved','rejected','executed') | |
+| status | enum('draft','open','approved','rejected','executed') | |
 | voting_start | timestamp nullable | |
 | voting_end | timestamp nullable | |
 | created_at, updated_at | timestamp | |
@@ -64,7 +64,7 @@ Detail keanggotaan koperasi + validasi NIK/KTP. 1:1 dengan `users` (role = anggo
 | id | bigint PK | |
 | proposal_id | bigint FK → proposals | |
 | user_id | bigint FK → users | |
-| choice | enum('setuju','tidak_setuju') | |
+| choice | enum('agree','disagree') | |
 | voted_at | timestamp | |
 
 **Unique constraint**: `(proposal_id, user_id)` — mengunci one-member-one-vote di level database, bukan cuma validasi aplikasi.
@@ -87,8 +87,8 @@ Detail keanggotaan koperasi + validasi NIK/KTP. 1:1 dengan `users` (role = anggo
 | name | varchar | |
 | description | text | |
 | location | varchar | |
-| tarif_per_jam | decimal(15,2) nullable | |
-| tarif_per_hari | decimal(15,2) nullable | |
+| hourly_rate | decimal(15,2) nullable | tarif per jam |
+| daily_rate | decimal(15,2) nullable | tarif per hari |
 | status | enum('available','maintenance','inactive') | |
 | created_by | bigint FK → users | pengurus yang input |
 | created_at, updated_at | timestamp | |
@@ -101,7 +101,7 @@ Detail keanggotaan koperasi + validasi NIK/KTP. 1:1 dengan `users` (role = anggo
 | user_id | bigint FK → users | penyewa |
 | start_datetime | timestamp | |
 | end_datetime | timestamp | |
-| duration_type | enum('per_jam','per_hari') | |
+| duration_type | enum('hourly','daily') | |
 | calculated_price | decimal(15,2) | dihitung otomatis dari tarif × durasi |
 | status | enum('pending','approved','ongoing','completed','cancelled','rejected') | |
 | approved_by | bigint FK → users nullable | |
@@ -166,7 +166,7 @@ Semua arus kas masuk/keluar, jadi sumber data untuk dashboard real-time.
 |---|---|---|
 | id | bigint PK | |
 | type | enum('income','expense') | |
-| category | enum('sewa_aset','iuran','pengadaan_aset','operasional','lainnya') | |
+| category | enum('asset_rental','dues','asset_procurement','operational','other') | |
 | amount | decimal(15,2) | |
 | description | text | |
 | reference_type | varchar nullable | polymorphic: `Payment`, `Proposal`, dll |
