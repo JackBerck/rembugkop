@@ -26,7 +26,7 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
-        Validator::make($input, [
+        $validator = Validator::make($input, [
             ...$this->profileRules(),
             'phone' => ['required', 'string', 'regex:/^08[0-9]{8,11}$/'],
             'password' => $this->passwordRules(),
@@ -35,7 +35,18 @@ class CreateNewUser implements CreatesNewUsers
         ], [
             'phone.regex' => 'Nomor telepon harus diawali 08 dan terdiri dari 10-13 digit.',
             'national_id.digits' => 'NIK harus terdiri dari 16 digit angka.',
-        ])->validate();
+        ]);
+
+        $validator->after(function ($validator) use ($input): void {
+            if (! empty($input['national_id'])) {
+                $exists = MemberProfile::all()->contains(fn ($p) => $p->national_id === $input['national_id']);
+                if ($exists) {
+                    $validator->errors()->add('national_id', 'NIK ini sudah terdaftar.');
+                }
+            }
+        });
+
+        $validator->validate();
 
         return DB::transaction(function () use ($input): User {
             $user = User::create([

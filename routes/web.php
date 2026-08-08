@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Dashboard\AssetController as DashboardAssetController;
+use App\Http\Controllers\Dashboard\ReservationController as DashboardReservationController;
+use App\Http\Controllers\Public\AssetCatalogController;
+use App\Http\Controllers\Public\MyReservationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -16,20 +20,46 @@ Route::get('/verification-pending', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Beranda anggota terverifikasi
+| Publik — Katalog Aset (semua user terautentikasi, termasuk belum verified)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:anggota', 'member.verified'])->group(function () {
-    Route::inertia('/beranda', 'beranda')->name('beranda');
+Route::middleware('auth')->group(function () {
+    Route::get('/aset', [AssetCatalogController::class, 'index'])->name('asset-catalog');
+    Route::get('/aset/{asset}', [AssetCatalogController::class, 'show'])->name('asset-detail');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Dashboard pengurus & super_admin
+| Anggota Terverifikasi — Reservasi & Beranda
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:pengurus,super_admin'])->prefix('dashboard')->group(function () {
-    Route::inertia('/', 'dashboard')->name('dashboard');
+Route::middleware(['auth', 'role:anggota', 'member.verified'])->group(function () {
+    Route::inertia('/beranda', 'beranda')->name('beranda');
+
+    // Reservasi saya
+    Route::get('/reservasi-saya', [MyReservationController::class, 'index'])->name('my-reservations');
+    Route::delete('/reservasi-saya/{reservation}', [MyReservationController::class, 'cancel'])->name('my-reservations.cancel');
+
+    // Ajukan reservasi baru
+    Route::post('/aset/{asset}/reservasi', [AssetCatalogController::class, 'store'])->name('reservations.store');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard Pengurus & Super Admin
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:pengurus,super_admin'])->prefix('dashboard')->name('dashboard.')->group(function () {
+    Route::inertia('/', 'dashboard')->name('home');
+
+    // Manajemen Aset
+    Route::resource('assets', DashboardAssetController::class);
+
+    // Manajemen Reservasi
+    Route::get('reservations', [DashboardReservationController::class, 'index'])->name('reservations.index');
+    Route::get('reservations/{reservation}', [DashboardReservationController::class, 'show'])->name('reservations.show');
+    Route::patch('reservations/{reservation}/approve', [DashboardReservationController::class, 'approve'])->name('reservations.approve');
+    Route::patch('reservations/{reservation}/reject', [DashboardReservationController::class, 'reject'])->name('reservations.reject');
 });
 
 require __DIR__.'/settings.php';

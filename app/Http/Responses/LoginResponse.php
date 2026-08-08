@@ -21,7 +21,7 @@ class LoginResponse implements LoginResponseContract
         $user = $request->user();
 
         if ($user->role === UserRole::SuperAdmin || $user->role === UserRole::Pengurus) {
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route('dashboard.home'));
         }
 
         // Anggota: check verification status

@@ -56,10 +56,11 @@ class AssetReservationPolicy
     }
 
     /**
-     * Pengurus/admin bisa lihat semua reservasi.
+     * Semua user terautentikasi bisa listing reservasi (query difilter di controller).
+     * Pengurus/admin lihat semua; anggota lihat punya sendiri via where user_id.
      */
     public function viewAny(User $user): bool
     {
-        return $user->isPengurus() || $user->isAdmin();
+        return true;
     }
 }
