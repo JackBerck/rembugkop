@@ -7,7 +7,17 @@ use App\Http\Controllers\Public\MyReservationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+/*
+|--------------------------------------------------------------------------
+| Halaman Publik Bebas Akses (Tanpa Login)
+|--------------------------------------------------------------------------
+*/
 Route::inertia('/', 'welcome')->name('home');
+Route::inertia('/kontak', 'public/kontak')->name('kontak');
+Route::inertia('/faq', 'public/faq')->name('faq');
+Route::inertia('/kebijakan-privasi', 'public/kebijakan-privasi')->name('kebijakan-privasi');
+Route::inertia('/syarat-ketentuan', 'public/syarat-ketentuan')->name('syarat-ketentuan');
+Route::inertia('/panduan-penggunaan', 'public/panduan-penggunaan')->name('panduan-penggunaan');
 
 /*
 |--------------------------------------------------------------------------
@@ -18,15 +28,8 @@ Route::get('/verification-pending', function () {
     return Inertia::render('auth/verification-pending');
 })->middleware('auth')->name('verification.pending');
 
-/*
-|--------------------------------------------------------------------------
-| Publik — Katalog Aset (semua user terautentikasi, termasuk belum verified)
-|--------------------------------------------------------------------------
-*/
-Route::middleware('auth')->group(function () {
-    Route::get('/aset', [AssetCatalogController::class, 'index'])->name('asset-catalog');
-    Route::get('/aset/{asset}', [AssetCatalogController::class, 'show'])->name('asset-detail');
-});
+Route::get('/aset', [AssetCatalogController::class, 'index'])->name('asset-catalog');
+Route::get('/aset/{asset}', [AssetCatalogController::class, 'show'])->name('asset-detail');
 
 /*
 |--------------------------------------------------------------------------

@@ -57,50 +57,46 @@ Laravel 13 + Inertia.js v3 · React 19 + TailwindCSS v4 + ShadCN UI · Laravel F
 
 ### Prinsip
 
-Minimalis, modern, simpel. Warna lembut, bukan mencolok — karena target user lintas kalangan (termasuk warga desa yang lebih tua/kurang familiar teknologi) butuh tampilan yang tenang, tidak membingungkan, dan terasa terpercaya (ingat: ini platform yang membawa isu kepercayaan/transparansi kas).
+Minimalis, modern, bersih, profesional. Warna dominan latar putih & abu-abu terang netral, dengan warna aksen semantik yang jelas (Hijau gotong-royong, Biru informasi/transparansi, Merah larangan/peringatan) untuk memudahkan keterbacaan seluruh warga desa lintas usia.
 
-Nuansa yang ingin dibangun: **kehangatan gotong-royong desa** dipadukan **ketenangan sebuah dashboard keuangan yang bisa dipercaya**. Bukan nuansa "startup fintech Jakarta", bukan juga "website pemerintahan kaku".
+Nuansa yang dibangun: **kepercayaan publik, kejelasan informasi, dan profesionalisme koperasi desa digital**.
 
 ### Token Warna
 
-6 warna inti, dinamai berdasarkan hal-hal yang akrab di desa — supaya konsisten dipakai dan gampang diingat maknanya:
-
-| Nama | Hex | Peran | Kenapa |
+| Nama | Hex | Peran | Alasan |
 |---|---|---|---|
-| **Rice White** (background) | `#F5F6F0` | Latar utama | Putih hangat sedikit kehijauan, bukan putih steril rumah sakit — terasa seperti kertas/beras, bukan layar dingin |
-| **Ink Umber** (foreground) | `#2C2A24` | Teks utama | Coklat gelap hampir hitam — kontras cukup untuk keterbacaan lansia, tapi lebih lembut dari hitam pekat |
-| **Moss Sage** (primary) | `#57795C` | Tombol utama, link, elemen brand | Hijau lumut — asosiasi pertanian, gotong-royong, pertumbuhan. Warna paling sering muncul di UI |
-| **Telaga Teal** (accent/secondary) | `#356169` | Highlight dashboard kas, CTA sekunder, elemen "transparansi" | Teal dalam — air jernih/telaga, dipakai khusus di area yang berhubungan dengan kepercayaan & data finansial supaya terasa beda dari aksi umum (hijau) |
-| **Anyaman Beige** (muted) | `#E7E2D3` | Border, divider, card background, disabled state | Krem anyaman bambu — netral, dipakai luas tapi tidak pernah jadi pusat perhatian |
-| **Bata Merah Pudar** (destructive/warning) | `#B1503A` | Kas keluar, tolak voting, error — **hanya semantik, tidak dekoratif** | Merah bata pudar, bukan merah alarm terang — tetap dalam nuansa "lembut" tapi tetap jelas menandakan negatif/perhatian |
+| **Clean White** (background) | `#FFFFFF` | Latar utama | Putih bersih profesional untuk kontras maksimal & keterbacaan |
+| **Neutral Slate** (foreground) | `#0F172A` | Teks utama | Gelap charcoal/slate, kontras tinggi & nyaman dibaca |
+| **Emerald Coop** (primary) | `#059669` | Tombol utama, brand gotong-royong | Hijau zamrud — pertumbuhan, gotong-royong, aksi utama |
+| **Royal Info** (secondary/accent) | `#2563EB` | Highlight transparansi, informasi, badge | Biru profesional — kepercayaan, data finansial & informasi resmi |
+| **Slate Gray** (muted) | `#F1F5F9` | Card background, divider, disabled state | Abu-abu netral teruji |
+| **Crimson Warning** (destructive) | `#DC2626` | Peringatan, sanksi, larangan | Merah tegas semantik untuk aturan & larangan |
 
-**Aturan pemakaian penting**: `Bata Merah Pudar` HANYA untuk makna negatif/peringatan (expense, reject, error). Jangan dipakai dekoratif. `Telaga Teal` dikhususkan untuk konteks finansial/transparansi (dashboard kas, badge "Terverifikasi") supaya warga belajar mengasosiasikan warna itu dengan "ini area yang bisa dipercaya/diaudit". Di luar dua warna semantik itu, `Moss Sage` adalah warna aksi/brand default.
-
-CSS variables (format shadcn/ui, sesuaikan HSL persis pakai color converter saat implementasi):
+CSS variables:
 
 ```css
 :root {
-  --background: 72 25% 96%;      /* Rice White #F5F6F0 */
-  --foreground: 40 14% 16%;      /* Ink Umber #2C2A24 */
+  --background: #FFFFFF;
+  --foreground: #0F172A;
 
-  --primary: 128 16% 39%;        /* Moss Sage #57795C */
-  --primary-foreground: 0 0% 100%;
+  --primary: #059669;
+  --primary-foreground: #FFFFFF;
 
-  --secondary: 190 33% 27%;      /* Telaga Teal #356169 */
-  --secondary-foreground: 0 0% 100%;
-  --accent: 190 33% 27%;         /* alias ke secondary untuk highlight finansial */
-  --accent-foreground: 0 0% 100%;
+  --secondary: #2563EB;
+  --secondary-foreground: #FFFFFF;
+  --accent: #2563EB;
+  --accent-foreground: #FFFFFF;
 
-  --muted: 45 30% 88%;           /* Anyaman Beige #E7E2D3 */
-  --muted-foreground: 40 10% 40%;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
 
-  --destructive: 11 48% 45%;     /* Bata Merah Pudar #B1503A */
-  --destructive-foreground: 0 0% 100%;
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
 
-  --border: 45 30% 85%;
-  --card: 0 0% 100%;
-  --card-foreground: 40 14% 16%;
-  --radius: 0.75rem;
+  --border: #E2E8F0;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --radius: 0.5rem;
 }
 ```
 
